@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ImpactHub — Connect. Build. Change the World.</title>
+    <meta name="description" content="ImpactHub connects NGOs with student developers to solve real-world problems and earn verified impact certificates.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  TOAST NOTIFICATIONS                                        -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="toastContainer" class="toast-container"></div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  APPLY MODAL                                                -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="applyModal" class="modal-overlay hidden" onclick="handleModalBackdrop(event)">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-paper-plane"></i> Submit Application</h3>
+            <button class="modal-close" onclick="closeApplyModal()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <p class="modal-challenge-title" id="applyModalTitle"></p>
+            <div class="field-group">
+                <label for="solutionLink">Solution / GitHub Link <span class="required">*</span></label>
+                <input type="url" id="solutionLink" placeholder="https://github.com/yourusername/project">
+            </div>
+            <div class="field-group">
+                <label for="solutionNote">Cover Note <span class="optional">(optional)</span></label>
+                <textarea id="solutionNote" rows="3" placeholder="Briefly describe your approach or solution..."></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-ghost" onclick="closeApplyModal()">Cancel</button>
+            <button class="btn-primary" onclick="submitApply()"><i class="fa-solid fa-paper-plane"></i> Submit Application</button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  AUTH SCREEN                                                -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="authScreen" class="auth-layer">
+    <div class="auth-left">
+        <div class="auth-brand">
+            <div class="brand-logo"><i class="fa-solid fa-bolt"></i></div>
+            <h1>ImpactHub</h1>
+            <p class="brand-tagline">Where student talent meets <br>real-world NGO challenges.</p>
+        </div>
+        <div class="auth-features">
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa-solid fa-globe"></i></div>
+                <div><strong>Real Problems</strong><p>NGOs post genuine challenges that need solving</p></div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa-solid fa-medal"></i></div>
+                <div><strong>Verified Certificates</strong><p>Download proof of your impact as a certificate</p></div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon"><i class="fa-solid fa-comments"></i></div>
+                <div><strong>Direct Chat</strong><p>Collaborate with NGOs throughout the process</p></div>
+            </div>
+        </div>
+        <div class="auth-stats" id="authStats">
+            <div class="auth-stat"><span id="stat-challenges">—</span><small>Challenges</small></div>
+            <div class="auth-stat"><span id="stat-solved">—</span><small>Solved</small></div>
+            <div class="auth-stat"><span id="stat-students">—</span><small>Students</small></div>
+            <div class="auth-stat"><span id="stat-ngos">—</span><small>NGOs</small></div>
+        </div>
+    </div>
+
+    <div class="auth-right">
+        <div class="auth-form-wrapper">
+            <div class="auth-tabs">
+                <button id="tab-login" class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+                <button id="tab-register" class="auth-tab" onclick="switchAuthTab('register')">Create Account</button>
+            </div>
+
+            <!-- LOGIN FORM -->
+            <form id="loginForm" onsubmit="handleLogin(event)" class="auth-form">
+                <div class="field-group">
+                    <label for="lUser">Username</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="lUser" placeholder="Enter your username" required autocomplete="username">
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label for="lPass">Password</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="lPass" placeholder="Enter your password" required autocomplete="current-password">
+                        <button type="button" class="pass-toggle" onclick="togglePassword('lPass', this)"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                <button type="submit" class="btn-auth" id="loginBtn">
+                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                </button>
+                <p class="auth-switch">New here? <a href="#" onclick="switchAuthTab('register'); return false;">Create an account</a></p>
+            </form>
+
+            <!-- REGISTER FORM -->
+            <form id="registerForm" onsubmit="handleRegister(event)" class="auth-form hidden">
+                <div class="field-group">
+                    <label for="rUser">Username</label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" id="rUser" placeholder="Choose a unique username" required minlength="3" autocomplete="username">
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label for="rPass">Password <span class="optional">(min. 6 characters)</span></label>
+                    <div class="input-icon-wrap">
+                        <i class="fa-solid fa-lock"></i>
+                        <input type="password" id="rPass" placeholder="Create a strong password" required minlength="6" autocomplete="new-password">
+                        <button type="button" class="pass-toggle" onclick="togglePassword('rPass', this)"><i class="fa-solid fa-eye"></i></button>
+                    </div>
+                </div>
+                <div class="field-group">
+                    <label for="rRole">I am joining as</label>
+                    <div class="role-selector">
+                        <label class="role-card active" id="role-student">
+                            <input type="radio" name="role" value="student" checked>
+                            <i class="fa-solid fa-graduation-cap"></i>
+                            <strong>Student Developer</strong>
+                            <span>Apply to challenges & earn certificates</span>
+                        </label>
+                        <label class="role-card" id="role-ngo">
+                            <input type="radio" name="role" value="ngo">
+                            <i class="fa-solid fa-building-ngo"></i>
+                            <strong>NGO Organization</strong>
+                            <span>Post challenges & find talent</span>
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn-auth" id="registerBtn">
+                    <i class="fa-solid fa-user-plus"></i> Create Account
+                </button>
+                <p class="auth-switch">Already have an account? <a href="#" onclick="switchAuthTab('login'); return false;">Sign in</a></p>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  MAIN APPLICATION                                           -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="mainApp" class="app-interface hidden">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <i class="fa-solid fa-bolt"></i>
+            <span>ImpactHub</span>
+        </div>
+
+        <nav class="sidebar-nav">
+            <button data-view="dashboard" onclick="switchView('dashboard')" class="nav-link active">
+                <i class="fa-solid fa-gauge-high"></i><span>Dashboard</span>
+            </button>
+            <button data-view="challenges" onclick="switchView('challenges')" class="nav-link">
+                <i class="fa-solid fa-globe"></i><span>Challenges</span>
+            </button>
+            <button data-view="leaderboard" onclick="switchView('leaderboard')" class="nav-link">
+                <i class="fa-solid fa-ranking-star"></i><span>Leaderboard</span>
+            </button>
+            <!-- Student-only -->
+            <button data-view="my-work" onclick="switchView('my-work')" class="nav-link hidden" id="nav-my-applications">
+                <i class="fa-solid fa-folder-open"></i><span>My Applications</span>
+            </button>
+            <button data-view="badges" onclick="switchView('badges')" class="nav-link hidden" id="nav-badges">
+                <i class="fa-solid fa-medal"></i><span>My Badges</span>
+            </button>
+            <!-- NGO-only -->
+            <button data-view="my-work" onclick="switchView('my-work')" class="nav-link hidden" id="nav-my-challenges">
+                <i class="fa-solid fa-list-check"></i><span>My Challenges</span>
+            </button>
+            <button data-view="post" onclick="switchView('post')" class="nav-link hidden" id="nav-post">
+                <i class="fa-solid fa-circle-plus"></i><span>Post Challenge</span>
+            </button>
+            <!-- All users -->
+            <button data-view="analytics" onclick="switchView('analytics')" class="nav-link" id="nav-analytics">
+                <i class="fa-solid fa-chart-line"></i><span>Analytics</span>
+            </button>
+        </nav>
+
+        <div class="sidebar-user">
+            <div class="user-avatar" id="sidebarAvatar">U</div>
+            <div class="user-info">
+                <strong id="sidebarName">User</strong>
+                <small id="sidebarRole">Role</small>
+            </div>
+            <button class="logout-btn" onclick="logout()" title="Sign out">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <div class="main-content">
+
+        <!-- TOP BAR -->
+        <header class="top-bar">
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="globalSearch" placeholder="Search challenges..." oninput="onSearchInput(this.value)">
+            </div>
+            <div class="top-bar-actions">
+                <button class="notif-btn" onclick="switchView('challenges')" title="Notifications" id="notifBtn">
+                    <i class="fa-solid fa-bell"></i>
+                    <span class="notif-badge hidden" id="notifBadge">0</span>
+                </button>
+                <div class="top-avatar" id="topAvatar">U</div>
+            </div>
+        </header>
+
+        <!-- ══════════════════ VIEWS ══════════════════ -->
+        <div class="content-area">
+
+            <!-- DASHBOARD -->
+            <section id="view-dashboard" class="view-section fade-in">
+                <div class="welcome-banner">
+                    <div>
+                        <h2>Welcome back, <span id="dashName">User</span> 👋</h2>
+                        <p id="dashSubtitle">Here's what's happening on ImpactHub today.</p>
+                    </div>
+                </div>
+                <div id="dashStatsGrid" class="stats-grid"></div>
+                <div class="dashboard-bottom">
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3>📁 Recent Challenges</h3>
+                            <button class="see-all-btn" onclick="switchView('challenges')">See all <i class="fa-solid fa-arrow-right"></i></button>
+                        </div>
+                        <div id="recentChallenges"></div>
+                    </div>
+                    <div class="dash-card">
+                        <div class="dash-card-header">
+                            <h3>⚡ Live Activity</h3>
+                        </div>
+                        <div id="activityFeed" class="activity-feed"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CHALLENGES -->
+            <section id="view-challenges" class="view-section fade-in hidden">
+                <div class="page-header">
+                    <h2>Global Challenges</h2>
+                    <p>Real problems posted by verified NGOs — waiting for your solution.</p>
+                </div>
+                <div class="toolbar">
+                    <div class="status-chips" id="statusChips">
+                        <button class="chip active" onclick="setStatusFilter('all')">All</button>
+                        <button class="chip" onclick="setStatusFilter('Open')">Open</button>
+                        <button class="chip" onclick="setStatusFilter('Solved')">Solved</button>
+                    </div>
+                </div>
+                <div class="category-chips" id="categoryChips"></div>
+                <div id="challengesGrid" class="challenges-grid"></div>
+            </section>
+
+            <!-- MY WORK (student: applications / ngo: challenges) -->
+            <section id="view-my-work" class="view-section fade-in hidden">
+                <div class="page-header">
+                    <h2 id="myWorkTitle">My Applications</h2>
+                    <p id="myWorkSubtitle">Track your submissions and stay in touch with NGOs.</p>
+                </div>
+                <div id="myWorkContent"></div>
+            </section>
+
+            <!-- LEADERBOARD -->
+            <section id="view-leaderboard" class="view-section fade-in hidden">
+                <div class="page-header">
+                    <h2><i class="fa-solid fa-ranking-star"></i> Impact Leaderboard</h2>
+                    <p>Top student developers making real-world change.</p>
+                </div>
+                <div id="leaderboardContent"></div>
+            </section>
+
+            <!-- BADGES -->
+            <section id="view-badges" class="view-section fade-in hidden">
+                <div class="page-header">
+                    <h2><i class="fa-solid fa-wallet"></i> Impact Wallet</h2>
+                    <p>Your collection of verified achievement certificates.</p>
+                </div>
+                <div id="badgesGrid" class="nft-grid"></div>
+            </section>
+
+            <!-- ANALYTICS -->
+            <section id="view-analytics" class="view-section fade-in hidden">
+                <div class="page-header">
+                    <h2><i class="fa-solid fa-chart-line"></i> Analytics</h2>
+                    <p id="analyticsSubtitle">Your impact metrics and performance insights.</p>
+                </div>
+                <div id="analyticsContent"></div>
+            </section>
+
+            <!-- POST CHALLENGE (NGO) -->
+            <section id="view-post" class="view-section fade-in hidden">
+                <div class="page-header">
+                    <h2><i class="fa-solid fa-circle-plus"></i> Post a New Challenge</h2>
+                    <p>Describe a real problem your organization needs help solving.</p>
+                </div>
+                <div class="form-card">
+                    <form onsubmit="postProject(event)" id="postForm">
+                        <div class="form-grid">
+                            <div class="field-group" style="grid-column: 1/-1">
+                                <label for="pTitle">Challenge Title <span class="required">*</span></label>
+                                <input type="text" id="pTitle" placeholder="e.g. Build a water quality monitoring app" required maxlength="200">
+                            </div>
+                            <div class="field-group">
+                                <label for="pCategory">Category <span class="required">*</span></label>
+                                <select id="pCategory" required>
+                                    <option value="">Select a category...</option>
+                                    <option value="Technology">💻 Technology</option>
+                                    <option value="Education">📚 Education</option>
+                                    <option value="Environment">🌿 Environment</option>
+                                    <option value="Health">🏥 Health</option>
+                                    <option value="Community">🤝 Community</option>
+                                    <option value="Arts">🎨 Arts & Culture</option>
+                                    <option value="Sustainability">♻️ Sustainability</option>
+                                    <option value="General">🌐 General</option>
+                                </select>
+                            </div>
+                            <div class="field-group" style="grid-column: 1/-1">
+                                <label for="pDesc">Detailed Description <span class="required">*</span></label>
+                                <textarea id="pDesc" rows="6" placeholder="Explain the problem in detail: what needs to be built, what impact it will have, what deliverables you expect..." required></textarea>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary btn-lg">
+                                <i class="fa-solid fa-rocket"></i> Publish Challenge
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+        </div><!-- /content-area -->
+    </div><!-- /main-content -->
+</div><!-- /mainApp -->
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!--  CHAT OVERLAY                                               -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="chatOverlay" class="chat-overlay hidden">
+    <div class="chat-panel">
+        <div class="chat-header">
+            <div class="chat-header-info">
+                <div class="chat-avatar" id="chatAvatar">U</div>
+                <div>
+                    <strong id="chatPartnerName">Partner</strong>
+                    <small id="chatChallengeName">Challenge</small>
+                </div>
+            </div>
+            <button class="chat-close-btn" onclick="closeChat()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="chatMessages" class="chat-messages"></div>
+        <div class="chat-input-row">
+            <input type="text" id="chatInput" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMessage()">
+            <button class="chat-send-btn" onclick="sendMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

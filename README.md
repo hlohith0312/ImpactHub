@@ -92,19 +92,13 @@ pip install -r requirements.txt
 ```
 
 ### 3. Set up your MongoDB credentials
-Create a free cluster at [MongoDB Atlas](https://www.mongodb.com/atlas), then:
+Open `BACKEND/.env` and replace the placeholder with your own MongoDB cluster URI and credentials:
 
-```bash
-# Inside the BACKEND folder, copy the example file
-copy .env.example .env
-```
-
-Open `BACKEND/.env` and paste your own MongoDB connection string:
 ```
 MONGO_URI=mongodb+srv://<your-username>:<your-password>@<your-cluster>.mongodb.net/?appName=ImpactHub
 ```
 
-> ⚠️ **Never share or commit your `.env` file.** It is already blocked by `.gitignore`.
+> ⚠️ **Use your own MongoDB API key.** Never share your credentials with anyone.
 
 ### 4. Run the backend
 ```bash

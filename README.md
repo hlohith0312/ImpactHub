@@ -52,9 +52,12 @@ Impact Hub/
 │   ├── app/
 │   │   ├── __init__.py       # Flask app factory + MongoDB connection
 │   │   └── routes.py         # All API endpoints
-│   ├── config.py             # MongoDB URI config
+│   ├── config.py             # Reads credentials from .env
+│   ├── .env.example          # Template — copy this to .env and fill in your values
 │   ├── requirements.txt      # Python dependencies
 │   └── run.py                # Entry point
+├── BLOCKCHAIN/
+│   └── ImpactForge.sol       # Solidity smart contract (certificate verification architecture)
 ├── FRONTEND/
 │   ├── index.html            # Single-page app shell
 │   ├── style.css             # Full design system
@@ -88,11 +91,20 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Configure MongoDB
-Open `BACKEND/config.py` and replace the `MONGO_URI` with your own [MongoDB Atlas](https://www.mongodb.com/atlas) connection string:
-```python
-MONGO_URI = "mongodb+srv://<username>:<password>@cluster.mongodb.net/?appName=ImpactHub"
+### 3. Set up your MongoDB credentials
+Create a free cluster at [MongoDB Atlas](https://www.mongodb.com/atlas), then:
+
+```bash
+# Inside the BACKEND folder, copy the example file
+copy .env.example .env
 ```
+
+Open `BACKEND/.env` and paste your own MongoDB connection string:
+```
+MONGO_URI=mongodb+srv://<your-username>:<your-password>@<your-cluster>.mongodb.net/?appName=ImpactHub
+```
+
+> ⚠️ **Never share or commit your `.env` file.** It is already blocked by `.gitignore`.
 
 ### 4. Run the backend
 ```bash

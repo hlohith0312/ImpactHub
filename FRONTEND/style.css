@@ -449,6 +449,26 @@ textarea { resize: vertical; }
 }
 .view-sol-btn:hover { background: var(--success); color: white; }
 
+.chain-verified-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.73rem; font-weight: 600; white-space: nowrap;
+    color: #a78bfa;
+    background: rgba(124,58,237,0.12);
+    border: 1px solid rgba(124,58,237,0.3);
+    padding: 5px 10px; border-radius: 20px;
+    transition: 0.2s; text-decoration: none;
+}
+.chain-verified-badge:hover { background: rgba(124,58,237,0.25); color: #c4b5fd; }
+.chain-verified-badge i { font-size: 0.68rem; }
+
+.chain-pending-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 0.73rem; color: var(--text-dim);
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    padding: 5px 10px; border-radius: 20px;
+}
+
 .card-footer { display: flex; align-items: center; gap: 10px; padding-top: 4px; border-top: 1px solid var(--border); flex-wrap: wrap; }
 .card-footer-meta { font-size: 0.78rem; color: var(--text-dim); display: flex; align-items: center; gap: 5px; }
 .card-actions { margin-left: auto; display: flex; gap: 8px; align-items: center; }

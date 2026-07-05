@@ -17,7 +17,8 @@ instance/
 *.sqlite3
 *.db
 
-# Environment variables / secrets
+# Environment variables / secrets — NEVER commit .env
+.env
 .env.local
 
 # VS Code

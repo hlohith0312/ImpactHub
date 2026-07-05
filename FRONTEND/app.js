@@ -308,6 +308,14 @@ function challengeCardHTML(p) {
     const timeStr  = p.created_at ? timeAgo(p.created_at) : '';
 
     // Solution showcase — visible to EVERYONE when solved
+    const chainBadge = p.blockchain_tx && p.blockchain_tx !== 'Pending'
+        ? `<a href="${p.chain_etherscan || '#'}" target="_blank" rel="noopener" class="chain-verified-badge" title="View transaction on Etherscan">
+              <i class="fa-solid fa-link"></i> Blockchain Verified
+           </a>`
+        : p.blockchain_tx === 'Pending'
+        ? `<span class="chain-pending-badge"><i class="fa-solid fa-spinner fa-spin"></i> Confirming on-chain...</span>`
+        : '';
+
     const solutionBlock = isSolved ? `
         <div class="solution-showcase">
             <i class="fa-solid fa-trophy"></i>
@@ -316,6 +324,7 @@ function challengeCardHTML(p) {
                 <strong>${esc(p.solver_name)}</strong>
             </div>
             ${p.solver_link ? `<a href="${esc(p.solver_link)}" target="_blank" rel="noopener" class="view-sol-btn">View Solution ↗</a>` : ''}
+            ${chainBadge}
         </div>` : '';
 
     // Action area

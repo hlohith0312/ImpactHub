@@ -38,6 +38,7 @@
 | Frontend | HTML · Vanilla CSS · Vanilla JavaScript |
 | Backend | Python · Flask |
 | Database | MongoDB Atlas (PyMongo) |
+| Blockchain | Solidity · Ethereum Sepolia · Hardhat · Web3.py |
 | Auth | Session-based (username + password) |
 | Fonts | Google Fonts — Inter, Space Grotesk |
 | Icons | Font Awesome 6 |
@@ -51,13 +52,19 @@ Impact Hub/
 ├── BACKEND/
 │   ├── app/
 │   │   ├── __init__.py       # Flask app factory + MongoDB connection
+│   │   ├── blockchain.py     # Web3.py module — talks to ImpactForge contract
 │   │   └── routes.py         # All API endpoints
 │   ├── config.py             # Reads credentials from .env
-│   ├── .env.example          # Template — copy this to .env and fill in your values
+│   ├── .env.github           # Credential template — copy to .env and fill in values
 │   ├── requirements.txt      # Python dependencies
 │   └── run.py                # Entry point
 ├── BLOCKCHAIN/
-│   └── ImpactForge.sol       # Solidity smart contract (certificate verification architecture)
+│   ├── contracts/
+│   │   └── ImpactForge.sol   # Solidity smart contract (milestone tracking + certificates)
+│   ├── scripts/
+│   │   └── deploy.js         # Hardhat deploy script for Sepolia
+│   ├── deployment.json       # Deployed contract address + ABI
+│   └── hardhat.config.js     # Hardhat network config
 ├── FRONTEND/
 │   ├── index.html            # Single-page app shell
 │   ├── style.css             # Full design system
@@ -91,14 +98,21 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 3. Set up your MongoDB credentials
-Open `BACKEND/.env` and replace the placeholder with your own MongoDB cluster URI and credentials:
+### 3. Set up your credentials
+Copy the template and fill in your own values:
 
-```
-MONGO_URI=mongodb+srv://<your-username>:<your-password>@<your-cluster>.mongodb.net/?appName=ImpactHub
+```bash
+copy BACKEND\.env.github BACKEND\.env
 ```
 
-> ⚠️ **Use your own MongoDB API key.** Never share your credentials with anyone.
+Open `BACKEND/.env` and replace the placeholders:
+```
+MONGO_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/?appName=ImpactHub
+ALCHEMY_URL=https://eth-sepolia.g.alchemy.com/v2/<your-alchemy-key>
+DEPLOYER_PRIVATE_KEY=<your-wallet-private-key>
+```
+
+> ⚠️ **Never commit `.env`** — it is blocked by `.gitignore`
 
 ### 4. Run the backend
 ```bash
@@ -113,6 +127,14 @@ cd FRONTEND
 python -m http.server 3000
 ```
 Then open **`http://localhost:3000`** in your browser.
+
+### 6. (Optional) Deploy the smart contract
+```bash
+cd BLOCKCHAIN
+npm install
+npx hardhat run scripts/deploy.js --network sepolia
+```
+> Requires Sepolia test ETH — get free test ETH at [faucet.google.com/web3/faucet/ethereum/sepolia](https://cloud.google.com/application/web3/faucet/ethereum/sepolia)
 
 ---
 

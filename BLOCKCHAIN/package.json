@@ -1,0 +1,14 @@
+{
+  "name": "impactforge-contracts",
+  "version": "1.0.0",
+  "description": "ImpactHub smart contracts for NGO-student agreements",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy": "hardhat run scripts/deploy.js --network sepolia",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.22.0"
+  }
+}

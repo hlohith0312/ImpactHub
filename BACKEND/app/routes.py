@@ -3,6 +3,7 @@ from bson import ObjectId
 from bson.errors import InvalidId
 from datetime import datetime
 from pymongo import ASCENDING, DESCENDING
+from app import blockchain as bc
 
 api = Blueprint('api', __name__)
 
@@ -100,9 +101,34 @@ def handle_problems():
             'ngo_name': ngo['username'],
             'solver_id': None,
             'solver_name': None,
-            'blockchain_tx': None
+            'blockchain_tx': None,
+            'chain_problem_id': None,
+            'cert_id': None
         })
-        return jsonify({'message': 'Challenge posted!', 'id': str(result.inserted_id)}), 201
+        inserted_id = str(result.inserted_id)
+
+        # Fire blockchain postProblem async (non-blocking)
+        def on_chain_posted(chain_result):
+            if chain_result:
+                db.problems.update_one(
+                    {'_id': result.inserted_id},
+                    {'$set': {
+                        'blockchain_tx':    chain_result.get('tx_hash'),
+                        'chain_problem_id': chain_result.get('chain_problem_id'),
+                        'chain_etherscan':  chain_result.get('etherscan')
+                    }}
+                )
+                print(f"[Blockchain] Problem {inserted_id} posted on-chain: {chain_result.get('tx_hash')}")
+
+        bc.post_problem_async(
+            platform_id=inserted_id,
+            ngo_id=str(user_id),
+            title=title,
+            description=description,
+            callback=on_chain_posted
+        )
+
+        return jsonify({'message': 'Challenge posted!', 'id': inserted_id}), 201
 
     # ── GET all problems ──
     user_id = request.args.get('user_id', '')
@@ -232,17 +258,43 @@ def accept_solution():
         {'$set': {'status': 'Closed'}}
     )
 
+    # Call blockchain acceptSolution (synchronous — we want the tx_hash before responding)
+    chain_problem_id = problem.get('chain_problem_id')
+    chain_result     = None
+    if chain_problem_id:
+        chain_result = bc.accept_solution(
+            chain_problem_id = int(chain_problem_id),
+            student_id       = sub['student_id'],
+            student_name     = sub.get('student_name', 'Unknown'),
+            solution_link    = sub['link'],
+            platform_id      = pid
+        )
+
+    tx_hash     = chain_result.get('tx_hash')    if chain_result else 'Pending'
+    etherscan   = chain_result.get('etherscan')  if chain_result else None
+    cert_id     = chain_result.get('cert_id')    if chain_result else None
+    sol_hash    = chain_result.get('solution_hash') if chain_result else None
+
     # Mark problem as solved
     db.problems.update_one(
         {'_id': to_oid(pid)},
         {'$set': {
-            'status': 'Solved',
-            'solver_id': sub['student_id'],
-            'solver_name': sub.get('student_name', 'Unknown'),
-            'blockchain_tx': data.get('tx_hash', 'Pending')
+            'status':           'Solved',
+            'solver_id':        sub['student_id'],
+            'solver_name':      sub.get('student_name', 'Unknown'),
+            'blockchain_tx':    tx_hash,
+            'chain_etherscan':  etherscan,
+            'cert_id':          cert_id,
+            'solution_hash':    sol_hash
         }}
     )
-    return jsonify({'message': 'Winner selected!'})
+    return jsonify({
+        'message':     'Winner selected!',
+        'tx_hash':     tx_hash,
+        'etherscan':   etherscan,
+        'cert_id':     cert_id,
+        'on_chain':    chain_result is not None
+    })
 
 
 # ─────────────────────────────────────────────
